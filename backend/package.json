@@ -1,5 +1,10 @@
 {
     "name": "@findit/backend",
     "private": true,
-    "packageManager": "pnpm@12.18.0"
+    "packageManager": "pnpm@12.18.0",
+    "scripts": {
+        "dev": "pnpm --parallel --filter @findit/auth-service --filter @findit/items-service dev",
+        "dev:auth": "pnpm --filter @findit/auth-service dev",
+        "dev:items": "pnpm --filter @findit/items-service dev"
+    }
 }
