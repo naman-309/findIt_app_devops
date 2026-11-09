@@ -3,6 +3,9 @@
 
 A production-oriented Lost & Found application focused on learning Backend Development, Microservices, System Design, DevOps and AWS.
 
+pnpm --filter @findit/auth-service dev
+pnpm --filter @findit/items-service dev
+
 ## 1. Current Project Progress
 
 **Completed / Started**
