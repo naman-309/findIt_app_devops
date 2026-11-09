@@ -1,16 +1,4 @@
-import express from "express";
-
-const app = express();
-
-app.use(express.json());
-
-app.get("/health", (req, res) => {
-    res.status(200).json({
-        success: true,
-        service: "items-service",
-        message: "Items Service is running",
-    });
-});
+import app from "./app.js";
 
 const PORT = 3002;
 
