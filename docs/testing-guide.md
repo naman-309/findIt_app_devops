@@ -1,0 +1,1 @@
+Postman, automated tests, k6 instructions
