@@ -1,5 +1,5 @@
 
-# FindIt — Lost & Found Platform
+# FindIt — lost and  found - exploring devops
 
 A production-oriented Lost & Found application focused on learning Backend Development, Microservices, System Design, DevOps and AWS.
 
