@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { createUser, findUserByEmail } from "./auth.service.js";
+import { generateToken } from "../../utils/generate-token.js";
 export const registerUser = async (req, res, next) => {
     try {
         const { name, email, password } = req.validated.body;
@@ -60,6 +61,14 @@ export const loginUser = async (req, res, next) => {
                 message: "Invalid email or password",
             });
         }
+        const token = generateToken(user.id);
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 24 * 60 * 60 * 1000,
+        });
 
         // 3. Login success
         res.status(200).json({
