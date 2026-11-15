@@ -2,7 +2,7 @@ import express from "express";
 
 import {
     registerUser,
-    loginUser, getProfile
+    loginUser, getProfile, logoutUser
 } from "./auth.controller.js";
 
 import {
@@ -58,5 +58,10 @@ router.post(
     loginUser
 );
 
+//profile 
+
 router.get("/profile", verifyToken, getProfile);
+//logout 
+
+router.post("/logout", logoutUser);
 export default router;
