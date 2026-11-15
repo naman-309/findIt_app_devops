@@ -2,7 +2,7 @@ import express from "express";
 
 import {
     registerUser,
-    loginUser,
+    loginUser, getProfile, logoutUser
 } from "./auth.controller.js";
 
 import {
@@ -11,6 +11,7 @@ import {
 } from "./auth.schemas.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 
+import { verifyToken } from "../../middlewares/auth.middleware.js";
 const router = express.Router();
 /**
  * @openapi
@@ -57,4 +58,10 @@ router.post(
     loginUser
 );
 
+//profile 
+
+router.get("/profile", verifyToken, getProfile);
+//logout 
+
+router.post("/logout", logoutUser);
 export default router;
