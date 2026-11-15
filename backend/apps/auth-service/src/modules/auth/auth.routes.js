@@ -1,7 +1,14 @@
 import express from "express";
 
-import { registerUser, loginUser } from "./auth.controller.js";
-import { registerSchema } from "./auth.schemas.js";
+import {
+    registerUser,
+    loginUser,
+} from "./auth.controller.js";
+
+import {
+    registerSchema,
+    loginSchema,
+} from "./auth.schemas.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 
 const router = express.Router();
@@ -38,8 +45,16 @@ const router = express.Router();
  *       400:
  *         description: Validation failed
  */
-router.post("/register", validate(registerSchema), registerUser);
-router.post("/login", validate(registerSchema), loginUser);
+router.post(
+    "/register",
+    validate(registerSchema),
+    registerUser
+);
 
+router.post(
+    "/login",
+    validate(loginSchema),
+    loginUser
+);
 
 export default router;
