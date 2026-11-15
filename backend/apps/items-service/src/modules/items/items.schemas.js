@@ -11,3 +11,8 @@ export const createItemSchema = z.object({
         location: z.string().min(2, "Location is required"),
     }),
 });
+export const searchItemsSchema = z.object({
+    query: z.object({
+        search: z.string().trim().min(1, "Search term is required"),
+    }),
+});

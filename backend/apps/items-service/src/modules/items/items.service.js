@@ -48,3 +48,27 @@ export const getAllItems = async () => {
 
     return result.rows;
 };
+
+export const searchItems = async (searchTerm) => {
+    const query = `
+    SELECT
+      id,
+      user_id,
+      title,
+      description,
+      type,
+      location,
+      status,
+      created_at
+    FROM items_schema.items
+    WHERE status = 'active'
+    AND title ILIKE $1
+    ORDER BY created_at DESC
+  `;
+
+    const result = await pool.query(query, [
+        `%${searchTerm}%`,
+    ]);
+
+    return result.rows;
+};
