@@ -35,3 +35,17 @@ export const findUserByEmail = async (email) => {
 
     return result.rows[0] || null;
 };
+
+
+//
+export const findUserById = async (userId) => {
+    const query = `
+    SELECT id, name, email, created_at
+    FROM auth_schema.users
+    WHERE id = $1
+  `;
+
+    const result = await pool.query(query, [userId]);
+
+    return result.rows[0] || null;
+};

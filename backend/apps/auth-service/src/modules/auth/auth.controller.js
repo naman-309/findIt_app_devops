@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { createUser, findUserByEmail } from "./auth.service.js";
+import { createUser, findUserByEmail, findUserById } from "./auth.service.js";
 import { generateToken } from "../../utils/generate-token.js";
 export const registerUser = async (req, res, next) => {
     try {
@@ -79,6 +79,28 @@ export const loginUser = async (req, res, next) => {
                 name: user.name,
                 email: user.email,
             },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// profole 
+export const getProfile = async (req, res, next) => {
+    try {
+        const user = await findUserById(req.user.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile fetched successfully",
+            data: user,
         });
     } catch (error) {
         next(error);
