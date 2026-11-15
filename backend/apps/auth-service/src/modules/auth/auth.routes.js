@@ -1,6 +1,6 @@
 import express from "express";
 
-import { registerUser } from "./auth.controller.js";
+import { registerUser, loginUser } from "./auth.controller.js";
 import { registerSchema } from "./auth.schemas.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 
@@ -39,5 +39,7 @@ const router = express.Router();
  *         description: Validation failed
  */
 router.post("/register", validate(registerSchema), registerUser);
+router.post("/login", validate(registerSchema), loginUser);
+
 
 export default router;

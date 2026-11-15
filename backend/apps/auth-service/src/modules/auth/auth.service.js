@@ -19,3 +19,19 @@ export const createUser = async ({ name, email, passwordHash }) => {
 
     return result.rows[0];
 };
+
+
+
+
+
+export const findUserByEmail = async (email) => {
+    const query = `
+    SELECT id, name, email, password_hash
+    FROM auth_schema.users
+    WHERE LOWER(email) = LOWER($1)
+  `;
+
+    const result = await pool.query(query, [email.trim()]);
+
+    return result.rows[0] || null;
+};

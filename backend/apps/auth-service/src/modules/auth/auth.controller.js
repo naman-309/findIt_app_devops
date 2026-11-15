@@ -1,7 +1,5 @@
-
 import bcrypt from "bcrypt";
-import { createUser } from "./auth.service.js";
-
+import { createUser, findUserByEmail } from "./auth.service.js";
 export const registerUser = async (req, res, next) => {
     try {
         const { name, email, password } = req.validated.body;
@@ -35,3 +33,45 @@ export const registerUser = async (req, res, next) => {
 };
 
 
+
+export const loginUser = async (req, res, next) => {
+    try {
+        const { email, password } = req.validated.body;
+
+        // 1. Find user
+        const user = await findUserByEmail(email);
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid email or password",
+            });
+        }
+
+        // 2. Compare password
+        const isPasswordValid = await bcrypt.compare(
+            password,
+            user.password_hash
+        );
+
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid email or password",
+            });
+        }
+
+        // 3. Login success
+        res.status(200).json({
+            success: true,
+            message: "Login successful",
+            data: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
