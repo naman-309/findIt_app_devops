@@ -26,3 +26,25 @@ export const createItem = async ({
 
     return result.rows[0];
 };
+
+export const getAllItems = async () => {
+    const query = `
+    SELECT
+      id,
+      user_id,
+      title,
+      description,
+      type,
+      location,
+      item_date,
+      status,
+      created_at
+    FROM items_schema.items
+    WHERE status = 'active'
+    ORDER BY created_at DESC
+  `;
+
+    const result = await pool.query(query);
+
+    return result.rows;
+};

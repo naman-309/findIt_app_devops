@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyToken } from "../../middlewares/auth.middleware.js";
-import { createItemController } from "./items.controller.js";
+import { createItemController, getAllItemsController } from "./items.controller.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import { createItemSchema } from "./items.schemas.js";
 
@@ -15,6 +15,7 @@ router.get("/test-auth", verifyToken, (req, res) => {
 
 });
 
+router.get("/", getAllItemsController);
 router.post(
     "/",
     verifyToken,

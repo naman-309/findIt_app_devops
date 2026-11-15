@@ -1,4 +1,4 @@
-import { createItem } from "./items.service.js";
+import { createItem, getAllItems } from "./items.service.js";
 
 export const createItemController = async (req, res, next) => {
     try {
@@ -17,6 +17,21 @@ export const createItemController = async (req, res, next) => {
             success: true,
             message: "Item created successfully",
             data: item,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+export const getAllItemsController = async (req, res, next) => {
+    try {
+        const items = await getAllItems();
+
+        return res.status(200).json({
+            success: true,
+            count: items.length,
+            data: items,
         });
     } catch (error) {
         next(error);
