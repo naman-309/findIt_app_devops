@@ -1,0 +1,376 @@
+{
+  "info": {
+    "_postman_id": "654911ee-a1a3-44ff-b927-0c99a1563704",
+    "name": "FindIt Backend APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "46231344",
+    "_collection_link": "https://go.postman.co/collection/46231344-654911ee-a1a3-44ff-b927-0c99a1563704?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth Service",
+      "item": [
+        {
+          "name": "health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n  pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is JSON\", function () {\r\n  pm.response.to.be.json;\r\n});\r\n\r\npm.test(\"Correct service name\", function () {\r\n  const response = pm.response.json();\r\n\r\n  pm.expect(response.service).to.eql(\"auth-service\");\r\n});\r\n\r\npm.test(\"Service is successful\", function () {\r\n  const response = pm.response.json();\r\n\r\n  pm.expect(response.success).to.eql(true);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AUTH_URL}}/health",
+              "host": [
+                "{{AUTH_URL}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"test\",\r\n  \"email\": \"test1@gmail.com\",\r\n  \"password\": \"test12345\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AUTH_URL}}/api/auth/register",
+              "host": [
+                "{{AUTH_URL}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login status should be 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Login should be successful\", function () {\r\n    const response = pm.response.json();\r\n\r\n    pm.expect(response.success).to.eql(true);\r\n});\r\n\r\npm.test(\"JWT cookie should be generated\", function () {\r\n    const cookie = pm.response.headers.get(\"Set-Cookie\");\r\n\r\n    pm.expect(cookie).to.include(\"token=\");\r\n});\r\n\r\npm.test(\"JWT cookie should be HttpOnly\", function () {\r\n    const cookie = pm.response.headers.get(\"Set-Cookie\");\r\n\r\n    pm.expect(cookie.toLowerCase()).to.include(\"httponly\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"rahul@gmail.com\",\r\n  \"password\": \"rahul12345\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AUTH_URL}}/api/auth/login",
+              "host": [
+                "{{AUTH_URL}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Rahul\",\r\n  \"email\": \"rahul@gmail.com\",\r\n  \"password\": \"rahul12345\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{AUTH_URL}}/api/auth/profile",
+              "host": [
+                "{{AUTH_URL}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Rahul\",\r\n  \"email\": \"rahul@gmail.com\",\r\n  \"password\": \"rahul12345\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3001/api/auth/logout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Items Service",
+      "item": [
+        {
+          "name": "health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n  pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Correct service name\", function () {\r\n  const response = pm.response.json();\r\n\r\n  pm.expect(response.service).to.eql(\"items-service\");\r\n});\r\n\r\npm.test(\"Service is successful\", function () {\r\n  const response = pm.response.json();\r\n\r\n  pm.expect(response.success).to.eql(true);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ITEMS_URL}}/health",
+              "host": [
+                "{{ITEMS_URL}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create_item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Item should be created\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response should contain item ID\", function () {\r\n    pm.expect(response.data.id).to.exist;\r\n});\r\n\r\n// Save generated item ID\r\npm.environment.set(\"ITEM_ID\", response.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"title\": \"vivo y12s\",\r\n  \"description\": \"Black Samsung mobile lost near market\",\r\n  \"type\": \"lost\",\r\n  \"location\": \"Indore\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ITEMS_URL}}/api/items/{{ITEM_ID}}",
+              "host": [
+                "{{ITEMS_URL}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "{{ITEM_ID}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get_all_item",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ITEMS_URL}}/api/items",
+              "host": [
+                "{{ITEMS_URL}}"
+              ],
+              "path": [
+                "api",
+                "items"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "search_items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ITEMS_URL}}/api/items/search?search=mobile",
+              "host": [
+                "{{ITEMS_URL}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "mobile"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ITEMS_URL}}/api/items/test-auth",
+              "host": [
+                "{{ITEMS_URL}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "test-auth"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "search_by_id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ITEMS_URL}}/api/items/{{ITEM_ID}}",
+              "host": [
+                "{{ITEMS_URL}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "{{ITEM_ID}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
