@@ -16,3 +16,9 @@ export const searchItemsSchema = z.object({
         search: z.string().trim().min(1, "Search term is required"),
     }),
 });
+
+export const getItemByIdSchema = z.object({
+    params: z.object({
+        id: z.string().uuid("Invalid item ID"),
+    }),
+});
