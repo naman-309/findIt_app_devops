@@ -141,36 +141,6 @@
             }
           },
           "response": []
-        },
-        {
-          "name": "logout",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Rahul\",\r\n  \"email\": \"rahul@gmail.com\",\r\n  \"password\": \"rahul12345\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3001/api/auth/logout",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3001",
-              "path": [
-                "api",
-                "auth",
-                "logout"
-              ]
-            }
-          },
-          "response": []
         }
       ]
     },
@@ -222,7 +192,27 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Item should be created\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response should contain item ID\", function () {\r\n    pm.expect(response.data.id).to.exist;\r\n});\r\n\r\n// Save generated item ID\r\npm.environment.set(\"ITEM_ID\", response.data.id);"
+                  "pm.test(\"Item should be created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "let response = {};",
+                  "try {",
+                  "    response = pm.response.json();",
+                  "} catch (error) {",
+                  "    response = {};",
+                  "}",
+                  "",
+                  "if (pm.response.code === 201 && response.data && response.data.id) {",
+                  "    pm.environment.set(\"ITEM_ID\", response.data.id);",
+                  "    pm.test(\"Response should contain item ID\", function () {",
+                  "        pm.expect(response.data.id).to.exist;",
+                  "    });",
+                  "} else {",
+                  "    pm.test(\"Response should contain item ID\", function () {",
+                  "        pm.expect.fail(\"Item ID was not returned because item creation failed.\");",
+                  "    });",
+                  "}"
                 ]
               }
             }
@@ -240,14 +230,13 @@
               }
             },
             "url": {
-              "raw": "{{ITEMS_URL}}/api/items/{{ITEM_ID}}",
+              "raw": "{{ITEMS_URL}}/api/items",
               "host": [
                 "{{ITEMS_URL}}"
               ],
               "path": [
                 "api",
-                "items",
-                "{{ITEM_ID}}"
+                "items"
               ]
             }
           },
@@ -371,6 +360,36 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "logout",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Rahul\",\r\n  \"email\": \"rahul@gmail.com\",\r\n  \"password\": \"rahul12345\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/auth/logout",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "api",
+            "auth",
+            "logout"
+          ]
+        }
+      },
+      "response": []
     }
   ]
 }
