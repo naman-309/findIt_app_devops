@@ -1,0 +1,22 @@
+services:
+  auth-service:
+    build:
+      context: .
+      dockerfile: apps/auth-service/Dockerfile
+    container_name: findit-auth
+    ports:
+      - "3001:3001"
+    env_file:
+      - apps/auth-service/.env.docker
+    restart: unless-stopped
+
+  items-service:
+    build:
+      context: .
+      dockerfile: apps/items-service/Dockerfile
+    container_name: findit-items
+    ports:
+      - "3002:3002"
+    env_file:
+      - apps/items-service/.env.docker
+    restart: unless-stopped
