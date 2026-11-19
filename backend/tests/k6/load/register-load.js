@@ -1,13 +1,22 @@
 
 import http from 'k6/http';
-import { check, sleep } from 'k6';
+import { check } from 'k6';
+
+const TEST_RUN_ID = __ENV.TEST_RUN_ID;
+
+if (!TEST_RUN_ID) {
+    throw new Error('Please provide TEST_RUN_ID when running k6');
+}
 
 export const options = {
-    stages: [
-        { duration: '10s', target: 2 },
-        { duration: '20s', target: 2 },
-        { duration: '10s', target: 0 },
-    ],
+    scenarios: {
+        register_load: {
+            executor: 'per-vu-iterations',
+            vus: 50,
+            iterations: 1,
+            maxDuration: '60s',
+        },
+    },
 
     thresholds: {
         checks: ['rate==1'],
@@ -16,10 +25,11 @@ export const options = {
 };
 
 export default function () {
-    const email = `k6test.${Date.now()}.${__VU}.${__ITER}@example.com`;
+    // Each VU gets its own predictable email
+    const email = `k6test.load.${TEST_RUN_ID}.${__VU}@example.com`;
 
     const payload = JSON.stringify({
-        name: 'K6 Load Test User',
+        name: `K6 Load User ${__VU}`,
         email: email,
         password: 'TestUser12345',
     });
@@ -35,9 +45,9 @@ export default function () {
     );
 
     check(response, {
-        'Register successful': (res) =>
+        'Registration successful': (res) =>
             res.status >= 200 && res.status < 300,
     });
 
-    sleep(1);
+    console.log(`VU ${__VU} | ${email} | Status: ${response.status}`);
 }
