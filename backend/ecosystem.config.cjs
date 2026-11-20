@@ -3,14 +3,14 @@ const path = require('path');
 
 module.exports = {
     apps: [
+
         {
             name: 'findit-auth',
             script: 'src/index.js',
-
             cwd: path.resolve(__dirname, 'apps/auth-service'),
 
-            instances: 1,
-            exec_mode: 'fork',
+            instances: 2,
+            exec_mode: 'cluster',
 
             autorestart: true,
             watch: false,
