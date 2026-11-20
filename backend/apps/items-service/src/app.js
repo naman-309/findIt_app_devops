@@ -1,4 +1,5 @@
 import express from "express";
+import morgan from "morgan";
 import healthRoutes from "./modules/health/health.routes.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./config/swagger.js";
@@ -7,6 +8,7 @@ import { errorHandler } from "./middlewares/error-handler.middleware.js";
 import cookieParser from "cookie-parser";
 import itemsRoutes from "./modules/items/items.routes.js";
 const app = express();
+app.use(morgan('dev'));
 
 
 app.use(express.json());
