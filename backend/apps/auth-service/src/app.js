@@ -1,5 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+import morgan from 'morgan';
 
 import healthRoutes from "./modules/health/health.routes.js";
 import swaggerUi from "swagger-ui-express";
@@ -10,10 +11,13 @@ import { errorHandler } from "./middlewares/error-handler.middleware.js";
 // auth 
 import authRoutes from "./modules/auth/auth.routes.js";
 const app = express();
+app.use(morgan('dev'));
+
 app.use(express.json());
 app.use(cookieParser());
 
 // 
+
 
 app.use("/health", healthRoutes);
 // main apis 
