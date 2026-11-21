@@ -17,7 +17,7 @@ const runMigrations = async () => {
             migrationsTable: "pgmigrations",
             migrationsSchema: "auth_schema",
             schema: "auth_schema",
-            createMigrationsSchema: true,
+            // createMigrationsSchema: true,
         });
 
         console.log("Auth migrations completed successfully");
