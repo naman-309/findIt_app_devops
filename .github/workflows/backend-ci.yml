@@ -69,8 +69,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql-client
-
-      # Step 7: Create FindIt database roles and schemas
+# Step 7: Create FindIt database roles and schemas
       - name: Configure CI database
         env:
           PGPASSWORD: ci_test_password
@@ -84,7 +83,7 @@ jobs:
 
           CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
-          GRANT CONNECT ON DATABASE findit_db TO auth_service_user, items_service_user;
+          GRANT CONNECT, CREATE ON DATABASE findit_db TO auth_service_user, items_service_user;
 
           ALTER ROLE auth_service_user IN DATABASE findit_db SET search_path TO auth_schema, public;
           ALTER ROLE items_service_user IN DATABASE findit_db SET search_path TO items_schema, public;
