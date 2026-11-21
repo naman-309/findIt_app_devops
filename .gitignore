@@ -1,10 +1,29 @@
-@'
+
+# Dependencies
 node_modules/
+**/node_modules/
+
+# Environment variables and secrets
 .env
 .env.*
 !.env.example
-dist/
-coverage/
+
+# Logs
+logs/
 *.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Build output
+dist/
+build/
+coverage/
+
+
+# Temporary files
 .DS_Store
-'@ | Set-Content .gitignore
+Thumbs.db
+
+# Local test results
+test-results/
+git status
