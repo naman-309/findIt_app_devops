@@ -69,7 +69,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql-client
-# Step 7: Create FindIt database roles and schemas
+
+      # Step 7: Create FindIt database roles and schemas
       - name: Configure CI database
         env:
           PGPASSWORD: ci_test_password
@@ -83,31 +84,35 @@ jobs:
 
           CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
-          GRANT CONNECT, CREATE ON DATABASE findit_db TO auth_service_user, items_service_user;
+          GRANT ALL PRIVILEGES ON DATABASE findit_db TO auth_service_user, items_service_user;
 
           ALTER ROLE auth_service_user IN DATABASE findit_db SET search_path TO auth_schema, public;
           ALTER ROLE items_service_user IN DATABASE findit_db SET search_path TO items_schema, public;
           SQL
 
-      # Step 8: Run Auth Service migrations using auth_service_user
-      - name: Run Auth Service migrations
+      # Step 8: Run Auth Service database migrations
+      - name: Run Auth migrations
+        working-directory: backend/apps/auth-service
         env:
           DB_HOST: localhost
           DB_PORT: 5432
           DB_NAME: findit_db
           DB_USER: auth_service_user
           DB_PASSWORD: ci_auth_password
-        run: pnpm --filter @findit/auth-service migrate:up
+          NODE_ENV: test
+        run: node src/database/migrate.js
 
-      # Step 9: Run Items Service migrations using items_service_user
-      - name: Run Items Service migrations
+      # Step 9: Run Items Service database migrations
+      - name: Run Items migrations
+        working-directory: backend/apps/items-service
         env:
           DB_HOST: localhost
           DB_PORT: 5432
           DB_NAME: findit_db
           DB_USER: items_service_user
           DB_PASSWORD: ci_items_password
-        run: pnpm --filter @findit/items-service migrate:up
+          NODE_ENV: test
+        run: node src/database/migrate.js
 
       # Step 10: Build Auth Service Docker image
       - name: Build Auth Service image
