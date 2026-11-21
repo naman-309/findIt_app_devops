@@ -60,26 +60,60 @@ jobs:
           node --version
           pnpm --version
 
-      # Step 5: Install dependencies using lockfile
+      # Step 5: Install dependencies using the lockfile
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Step 6: Run Database Migrations on CI Postgres
-      - name: Run Database Migrations
+      # Step 6: Install PostgreSQL command-line client
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      # Step 7: Create FindIt database roles and schemas
+      - name: Configure CI database
+        env:
+          PGPASSWORD: ci_test_password
+        run: |
+          psql -h localhost -p 5432 -U postgres -d findit_db -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE auth_service_user LOGIN PASSWORD 'ci_auth_password';
+          CREATE ROLE items_service_user LOGIN PASSWORD 'ci_items_password';
+
+          CREATE SCHEMA auth_schema AUTHORIZATION auth_service_user;
+          CREATE SCHEMA items_schema AUTHORIZATION items_service_user;
+
+          CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+          GRANT CONNECT ON DATABASE findit_db TO auth_service_user, items_service_user;
+
+          ALTER ROLE auth_service_user IN DATABASE findit_db SET search_path TO auth_schema, public;
+          ALTER ROLE items_service_user IN DATABASE findit_db SET search_path TO items_schema, public;
+          SQL
+
+      # Step 8: Run Auth Service migrations using auth_service_user
+      - name: Run Auth Service migrations
         env:
           DB_HOST: localhost
           DB_PORT: 5432
           DB_NAME: findit_db
-          DB_USER: postgres
-          DB_PASSWORD: ci_test_password
-        run: |
-          pnpm --filter @findit/auth-service migrate:up
-          pnpm --filter @findit/items-service migrate:up
+          DB_USER: auth_service_user
+          DB_PASSWORD: ci_auth_password
+        run: pnpm --filter @findit/auth-service migrate:up
 
-      # Step 7: Build Auth Service Docker image
+      # Step 9: Run Items Service migrations using items_service_user
+      - name: Run Items Service migrations
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: findit_db
+          DB_USER: items_service_user
+          DB_PASSWORD: ci_items_password
+        run: pnpm --filter @findit/items-service migrate:up
+
+      # Step 10: Build Auth Service Docker image
       - name: Build Auth Service image
         run: docker build -f apps/auth-service/Dockerfile -t findit-auth-service:ci .
 
-      # Step 8: Build Items Service Docker image
+      # Step 11: Build Items Service Docker image
       - name: Build Items Service image
         run: docker build -f apps/items-service/Dockerfile -t findit-items-service:ci .
