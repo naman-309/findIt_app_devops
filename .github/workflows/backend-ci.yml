@@ -1,17 +1,13 @@
-
 name: FindIt Backend CI
 
-# When should this workflow execute?
 on:
   push:
     branches:
       - dev
-
   pull_request:
     branches:
       - dev
 
-# Give the workflow only read access to repository contents.
 permissions:
   contents: read
 
@@ -20,45 +16,70 @@ jobs:
     name: Backend Build and Validation
     runs-on: ubuntu-latest
 
-    # Run shell commands from the backend directory.
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: findit_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci_test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d findit_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     defaults:
       run:
         working-directory: backend
 
     steps:
-      # Step 1: Download repository code to the runner.
+      # Step 1: Download repository code to the runner
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
-      # Step 2: Install the same Node.js version as local.
-      - name: Setup Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 22.12.0
-
-      # Step 3: Install the project's pnpm version.
+      # Step 2: Install pnpm
       - name: Setup pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@v4
         with:
           package_json_file: backend/package.json
-          cache: true
-          cache_dependency_path: backend/pnpm-lock.yaml
 
-      # Step 4: Verify installed tool versions.
+      # Step 3: Install Node.js with pnpm caching
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.12.0
+          cache: 'pnpm'
+          cache-dependency-path: backend/pnpm-lock.yaml
+
+      # Step 4: Verify installed tool versions
       - name: Verify Node and pnpm
         run: |
           node --version
           pnpm --version
 
-      # Step 5: Install dependencies using the lockfile.
+      # Step 5: Install dependencies using lockfile
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Step 6: Build Auth Service Docker image.
-    
+      # Step 6: Run Database Migrations on CI Postgres
+      - name: Run Database Migrations
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: findit_db
+          DB_USER: postgres
+          DB_PASSWORD: ci_test_password
+        run: |
+          pnpm --filter @findit/auth-service migrate:up
+          pnpm --filter @findit/items-service migrate:up
+
+      # Step 7: Build Auth Service Docker image
       - name: Build Auth Service image
         run: docker build -f apps/auth-service/Dockerfile -t findit-auth-service:ci .
 
-      # Step 7: Build Items Service Docker image.
+      # Step 8: Build Items Service Docker image
       - name: Build Items Service image
         run: docker build -f apps/items-service/Dockerfile -t findit-items-service:ci .
