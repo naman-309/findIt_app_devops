@@ -1,0 +1,64 @@
+
+name: FindIt Backend CI
+
+# When should this workflow execute?
+on:
+  push:
+    branches:
+      - dev
+
+  pull_request:
+    branches:
+      - dev
+
+# Give the workflow only read access to repository contents.
+permissions:
+  contents: read
+
+jobs:
+  backend-ci:
+    name: Backend Build and Validation
+    runs-on: ubuntu-latest
+
+    # Run shell commands from the backend directory.
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      # Step 1: Download repository code to the runner.
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      # Step 2: Install the same Node.js version as local.
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22.12.0
+
+      # Step 3: Install the project's pnpm version.
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: backend/package.json
+          cache: true
+          cache_dependency_path: backend/pnpm-lock.yaml
+
+      # Step 4: Verify installed tool versions.
+      - name: Verify Node and pnpm
+        run: |
+          node --version
+          pnpm --version
+
+      # Step 5: Install dependencies using the lockfile.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Step 6: Build Auth Service Docker image.
+    
+      - name: Build Auth Service image
+        run: docker build -f apps/auth-service/Dockerfile -t findit-auth-service:ci .
+
+      # Step 7: Build Items Service Docker image.
+      - name: Build Items Service image
+        run: docker build -f apps/items-service/Dockerfile -t findit-items-service:ci .
