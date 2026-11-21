@@ -17,6 +17,8 @@ const runMigrations = async () => {
             migrationsTable: "pgmigrations",
             migrationsSchema: "items_schema",
             schema: "items_schema",
+            createMigrationsSchema: true,
+
         });
 
         console.log("Items migrations completed successfully");
