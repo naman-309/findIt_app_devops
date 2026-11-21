@@ -55,15 +55,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # Step 6: Build Auth Service Docker image.
+    
       - name: Build Auth Service image
-        run: |
-          docker build \
-            -f apps/auth-service/Dockerfile \
-            -t findit-auth-service:ci .
+        run: docker build -f apps/auth-service/Dockerfile -t findit-auth-service:ci .
 
       # Step 7: Build Items Service Docker image.
       - name: Build Items Service image
-        run: |
-          docker build \
-            -f apps/items-service/Dockerfile \
-            -t findit-items-service:ci .
+        run: docker build -f apps/items-service/Dockerfile -t findit-items-service:ci .
