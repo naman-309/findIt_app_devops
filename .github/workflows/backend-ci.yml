@@ -114,6 +114,76 @@ jobs:
           NODE_ENV: test
         run: node src/database/migrate.js
 
+
+      # Start both services and execute API tests
+      - name: Run Newman API integration tests
+        env:
+          JWT_SECRET: ci_only_findit_test_secret_change_for_real_deployment
+        run: |
+          set -euo pipefail
+
+          # Start Auth Service
+          (
+            cd apps/auth-service
+
+            export NODE_ENV=test
+            export PORT=3001
+            export DB_HOST=localhost
+            export DB_PORT=5432
+            export DB_NAME=findit_db
+            export DB_USER=auth_service_user
+            export DB_PASSWORD=ci_auth_password
+
+            nohup node src/index.js \
+              > "$RUNNER_TEMP/findit-auth.log" 2>&1 &
+          )
+
+          # Start Items Service
+          (
+            cd apps/items-service
+
+            export NODE_ENV=test
+            export PORT=3002
+            export DB_HOST=localhost
+            export DB_PORT=5432
+            export DB_NAME=findit_db
+            export DB_USER=items_service_user
+            export DB_PASSWORD=ci_items_password
+
+            nohup node src/index.js \
+              > "$RUNNER_TEMP/findit-items.log" 2>&1 &
+          )
+
+          # Wait until both services are healthy
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://localhost:3001/health >/dev/null \
+              && curl -fsS http://localhost:3002/health >/dev/null; then
+              echo "Both FindIt services are healthy"
+              break
+            fi
+
+            if [ "$attempt" -eq 30 ]; then
+              echo "Services failed to become healthy"
+
+              echo "AUTH SERVICE LOGS"
+              cat "$RUNNER_TEMP/findit-auth.log" || true
+
+              echo "ITEMS SERVICE LOGS"
+              cat "$RUNNER_TEMP/findit-items.log" || true
+
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+          # Execute existing Postman collection
+          pnpm exec newman run \
+            "tests/postman/FindIt Backend APIs.postman_collection.json" \
+            --environment \
+            "tests/postman/FindIt Local.postman_environment.json" \
+            --bail
+
       # Step 10: Build Auth Service Docker image
       - name: Build Auth Service image
         run: docker build -f apps/auth-service/Dockerfile -t findit-auth-service:ci .
