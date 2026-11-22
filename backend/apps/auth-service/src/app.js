@@ -53,9 +53,17 @@ app.use(
 );
 
 // 5. Health Check
+// app.get("/health", (req, res) => {
+//     res.status(200).json({
+//         success: true,
+//         message: "Auth Service is healthy",
+//     });
+// });
+// 5. Health Check
 app.get("/health", (req, res) => {
     res.status(200).json({
         success: true,
+        service: "auth-service",
         message: "Auth Service is healthy",
     });
 });
