@@ -114,8 +114,7 @@ jobs:
           NODE_ENV: test
         run: node src/database/migrate.js
 
-
-      # Start both services and execute API tests
+      # Step 10: Start both services and execute API tests
       - name: Run Newman API integration tests
         env:
           JWT_SECRET: ci_only_findit_test_secret_change_for_real_deployment
@@ -164,30 +163,34 @@ jobs:
 
             if [ "$attempt" -eq 30 ]; then
               echo "Services failed to become healthy"
-
-              echo "AUTH SERVICE LOGS"
+              echo "--- AUTH SERVICE LOGS ---"
               cat "$RUNNER_TEMP/findit-auth.log" || true
-
-              echo "ITEMS SERVICE LOGS"
+              echo "--- ITEMS SERVICE LOGS ---"
               cat "$RUNNER_TEMP/findit-items.log" || true
-
               exit 1
             fi
 
             sleep 2
           done
 
-          # Execute existing Postman collection
-          pnpm exec newman run \
+          # Execute existing Postman collection (print logs if any test fails)
+          if ! pnpm dlx newman run \
             "tests/postman/FindIt Backend APIs.postman_collection.json" \
             --environment \
             "tests/postman/FindIt Local.postman_environment.json" \
-            --bail
+            --bail; then
+            echo "Newman tests failed! Printing service logs..."
+            echo "--- AUTH SERVICE LOGS ---"
+            cat "$RUNNER_TEMP/findit-auth.log" || true
+            echo "--- ITEMS SERVICE LOGS ---"
+            cat "$RUNNER_TEMP/findit-items.log" || true
+            exit 1
+          fi
 
-      # Step 10: Build Auth Service Docker image
+      # Step 11: Build Auth Service Docker image
       - name: Build Auth Service image
         run: docker build -f apps/auth-service/Dockerfile -t findit-auth-service:ci .
 
-      # Step 11: Build Items Service Docker image
+      # Step 12: Build Items Service Docker image
       - name: Build Items Service image
         run: docker build -f apps/items-service/Dockerfile -t findit-items-service:ci .
