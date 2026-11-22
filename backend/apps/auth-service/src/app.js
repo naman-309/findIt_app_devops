@@ -5,6 +5,7 @@ import cors from "cors";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
+
 import authRoutes from "./modules/auth/auth.routes.js";
 
 const app = express();
