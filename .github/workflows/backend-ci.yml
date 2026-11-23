@@ -114,7 +114,7 @@ jobs:
           NODE_ENV: test
         run: node src/database/migrate.js
 
-      # Step 10: Start both services and execute API tests
+      # Step 10: Start both services and execute API tests with JUnit XML report
       - name: Run Newman API integration tests
         env:
           JWT_SECRET: ci_only_findit_test_secret_change_for_real_deployment
@@ -173,12 +173,16 @@ jobs:
             sleep 2
           done
 
-          # Execute existing Postman collection (print logs if any test fails)
+          # Create report directory & execute Postman collection
+          mkdir -p newman
+
           if ! pnpm dlx newman run \
             "tests/postman/FindIt Backend APIs.postman_collection.json" \
             --environment \
             "tests/postman/FindIt Local.postman_environment.json" \
-            --bail; then
+            --bail \
+            --reporters cli,junit \
+            --reporter-junit-export newman/results.xml; then
             echo "Newman tests failed! Printing service logs..."
             echo "--- AUTH SERVICE LOGS ---"
             cat "$RUNNER_TEMP/findit-auth.log" || true
@@ -187,10 +191,19 @@ jobs:
             exit 1
           fi
 
-      # Step 11: Build Auth Service Docker image
+      # Step 11: Upload JUnit XML report (runs even if tests fail)
+      - name: Upload Newman JUnit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-junit-report
+          path: backend/newman/results.xml
+          if-no-files-found: warn
+          retention-days: 14
+      # Step 12: Build Auth Service Docker image
       - name: Build Auth Service image
         run: docker build -f apps/auth-service/Dockerfile -t findit-auth-service:ci .
 
-      # Step 12: Build Items Service Docker image
+      # Step 13: Build Items Service Docker image
       - name: Build Items Service image
         run: docker build -f apps/items-service/Dockerfile -t findit-items-service:ci .
