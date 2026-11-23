@@ -49,12 +49,23 @@
         },
         {
           "name": "register",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\nconst email = `ci.${Date.now()}@example.test`;\r\nconst password = 'TestUser12345';\r\n\r\npm.environment.set('CI_TEST_EMAIL', email);\r\npm.environment.set('CI_TEST_PASSWORD', password);\r\n\r\nconsole.log('Register email:', email);\r\n"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"name\": \"test\",\r\n  \"email\": \"test1@gmail.com\",\r\n  \"password\": \"test12345\"\r\n}",
+              "raw": "\r\n{\r\n  \"name\": \"CI Test User\",\r\n  \"email\": \"{{CI_TEST_EMAIL}}\",\r\n  \"password\": \"{{CI_TEST_PASSWORD}}\"\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -83,7 +94,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Login status should be 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Login should be successful\", function () {\r\n    const response = pm.response.json();\r\n\r\n    pm.expect(response.success).to.eql(true);\r\n});\r\n\r\npm.test(\"JWT cookie should be generated\", function () {\r\n    const cookie = pm.response.headers.get(\"Set-Cookie\");\r\n\r\n    pm.expect(cookie).to.include(\"token=\");\r\n});\r\n\r\npm.test(\"JWT cookie should be HttpOnly\", function () {\r\n    const cookie = pm.response.headers.get(\"Set-Cookie\");\r\n\r\n    pm.expect(cookie.toLowerCase()).to.include(\"httponly\");\r\n});"
+                  "\r\nconst response = pm.response.json();\r\nconst cookie = pm.response.headers.get(\"Set-Cookie\") || \"\";\r\n\r\nconsole.log(\"Login email:\", pm.environment.get(\"CI_TEST_EMAIL\"));\r\nconsole.log(\"Login response:\", pm.response.text());\r\nconsole.log(\"JWT cookie present:\", cookie.includes(\"token=\"));\r\nconsole.log(\"HttpOnly present:\", /httponly/i.test(cookie));\r\n\r\npm.test(\"Login status should be 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Login should be successful\", function () {\r\n    pm.expect(response.success).to.eql(true);\r\n});\r\n\r\npm.test(\"JWT cookie should be generated\", function () {\r\n    pm.expect(cookie).to.include(\"token=\");\r\n});\r\n\r\npm.test(\"JWT cookie should be HttpOnly\", function () {\r\n    pm.expect(cookie.toLowerCase()).to.include(\"httponly\");\r\n});\r\n"
                 ]
               }
             }
@@ -93,7 +104,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"email\": \"rahul@gmail.com\",\r\n  \"password\": \"rahul12345\"\r\n}",
+              "raw": "\r\n{\r\n  \"email\": \"{{CI_TEST_EMAIL}}\",\r\n  \"password\": \"{{CI_TEST_PASSWORD}}\"\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -137,6 +148,36 @@
                 "api",
                 "auth",
                 "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Rahul\",\r\n  \"email\": \"rahul@gmail.com\",\r\n  \"password\": \"rahul12345\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3001/api/auth/logout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "api",
+                "auth",
+                "logout"
               ]
             }
           },
@@ -192,27 +233,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Item should be created\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "let response = {};",
-                  "try {",
-                  "    response = pm.response.json();",
-                  "} catch (error) {",
-                  "    response = {};",
-                  "}",
-                  "",
-                  "if (pm.response.code === 201 && response.data && response.data.id) {",
-                  "    pm.environment.set(\"ITEM_ID\", response.data.id);",
-                  "    pm.test(\"Response should contain item ID\", function () {",
-                  "        pm.expect(response.data.id).to.exist;",
-                  "    });",
-                  "} else {",
-                  "    pm.test(\"Response should contain item ID\", function () {",
-                  "        pm.expect.fail(\"Item ID was not returned because item creation failed.\");",
-                  "    });",
-                  "}"
+                  "pm.test(\"Item should be created\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response should contain item ID\", function () {\r\n    pm.expect(response.data.id).to.exist;\r\n});\r\n\r\n// Save generated item ID\r\npm.environment.set(\"ITEM_ID\", response.data.id);"
                 ]
               }
             }
@@ -230,13 +251,14 @@
               }
             },
             "url": {
-              "raw": "{{ITEMS_URL}}/api/items",
+              "raw": "{{ITEMS_URL}}/api/items/{{ITEM_ID}}",
               "host": [
                 "{{ITEMS_URL}}"
               ],
               "path": [
                 "api",
-                "items"
+                "items",
+                "{{ITEM_ID}}"
               ]
             }
           },
@@ -360,36 +382,6 @@
           "response": []
         }
       ]
-    },
-    {
-      "name": "logout",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"name\": \"Rahul\",\r\n  \"email\": \"rahul@gmail.com\",\r\n  \"password\": \"rahul12345\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "http://localhost:3001/api/auth/logout",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "3001",
-          "path": [
-            "api",
-            "auth",
-            "logout"
-          ]
-        }
-      },
-      "response": []
     }
   ]
 }
