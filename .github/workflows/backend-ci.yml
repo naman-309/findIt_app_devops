@@ -120,6 +120,8 @@ jobs:
       - name: Run Newman API integration tests
         env:
           JWT_SECRET: ${{ secrets.CI_JWT_SECRET }}
+          AUTH_PORT: ${{ vars.AUTH_PORT }}
+          ITEMS_PORT: ${{ vars.ITEMS_PORT }}
         run: |
           set -euo pipefail
 
@@ -128,12 +130,17 @@ jobs:
             exit 1
           fi
 
+          if [ -z "${AUTH_PORT:-}" ] || [ -z "${ITEMS_PORT:-}" ]; then
+            echo "AUTH_PORT or ITEMS_PORT is not configured"
+            exit 1
+          fi
+
           # Start Auth Service
           (
             cd apps/auth-service
 
             export NODE_ENV=test
-            export PORT=3001
+            export PORT="$AUTH_PORT"
             export DB_HOST=localhost
             export DB_PORT=5432
             export DB_NAME=findit_db
@@ -149,7 +156,7 @@ jobs:
             cd apps/items-service
 
             export NODE_ENV=test
-            export PORT=3002
+            export PORT="$ITEMS_PORT"
             export DB_HOST=localhost
             export DB_PORT=5432
             export DB_NAME=findit_db
@@ -162,8 +169,8 @@ jobs:
 
           # Wait until both services are healthy
           for attempt in $(seq 1 30); do
-            if curl -fsS http://localhost:3001/health >/dev/null \
-              && curl -fsS http://localhost:3002/health >/dev/null; then
+            if curl -fsS "http://localhost:$AUTH_PORT/health" >/dev/null \
+              && curl -fsS "http://localhost:$ITEMS_PORT/health" >/dev/null; then
               echo "Both FindIt services are healthy"
               break
             fi
@@ -187,6 +194,8 @@ jobs:
             "tests/postman/FindIt Backend APIs.postman_collection.json" \
             --environment \
             "tests/postman/FindIt Local.postman_environment.json" \
+            --env-var "AUTH_URL=http://localhost:$AUTH_PORT" \
+            --env-var "ITEMS_URL=http://localhost:$ITEMS_PORT" \
             --bail \
             --reporters cli,junit \
             --reporter-junit-export newman/results.xml; then
