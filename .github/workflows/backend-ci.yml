@@ -223,4 +223,4 @@ jobs:
 
       # Step 13: Build Items Service Docker image
       - name: Build Items Service image
-        run: docker build -f apps/items-service/Dockerfile -t findit-items-service:ci 
+        run: docker build -f apps/items-service/Dockerfile -t findit-items-service:ci .
