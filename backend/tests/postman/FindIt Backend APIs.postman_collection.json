@@ -132,7 +132,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Rahul\",\r\n  \"email\": \"rahul@gmail.com\",\r\n  \"password\": \"rahul12345\"\r\n}",
+              "raw": "",
               "options": {
                 "raw": {
                   "language": "json"
@@ -148,36 +148,6 @@
                 "api",
                 "auth",
                 "profile"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "logout",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Rahul\",\r\n  \"email\": \"rahul@gmail.com\",\r\n  \"password\": \"rahul12345\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3001/api/auth/logout",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3001",
-              "path": [
-                "api",
-                "auth",
-                "logout"
               ]
             }
           },
@@ -251,14 +221,13 @@
               }
             },
             "url": {
-              "raw": "{{ITEMS_URL}}/api/items/{{ITEM_ID}}",
+              "raw": "{{ITEMS_URL}}/api/items",
               "host": [
                 "{{ITEMS_URL}}"
               ],
               "path": [
                 "api",
-                "items",
-                "{{ITEM_ID}}"
+                "items"
               ]
             }
           },
@@ -382,6 +351,34 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "logout",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{AUTH_URL}}/api/auth/logout",
+          "host": [
+            "{{AUTH_URL}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "logout"
+          ]
+        }
+      },
+      "response": []
     }
   ]
 }
