@@ -9,7 +9,7 @@ const startServer = async () => {
 
         app.listen(PORT, () => {
 
-            console.log(`Auth Service running on port ${PORT}`);
+            console.log(`item Service running on port ${PORT}`);
         });
     } catch (error) {
         console.error("Failed to start Auth Service:", error.message);
