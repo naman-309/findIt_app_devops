@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   backend-ci:
@@ -224,3 +225,19 @@ jobs:
       # Step 13: Build Items Service Docker image
       - name: Build Items Service image
         run: docker build -f apps/items-service/Dockerfile -t findit-items-service:ci .
+
+
+      - name: Configure AWS credentials using OIDC
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          role-session-name: FindItGitHubActions-${{ github.run_id }}
+
+      - name: Verify AWS identity
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        run: |
+          aws --version
+          aws sts get-caller-identity
